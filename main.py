@@ -1,13 +1,22 @@
-from flask import Flask , request , jsonify , json
-from models import Books ,app
+from flask import Flask , request , jsonify , json , Response 
+from flask_cors import cross_origin,CORS
+from models import Books ,app , db
+import logging
+CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 @app.route('/')
 def main():
     return "hello asdworld"
 @app.route('/addbook',methods=['POST'])
 def addbook():
-    print(request.data)
-    return "axzcadassd"
-@app.route('/getbooks',methods=['POST','GET'])
+    #print(request.json,type(request.form))
+    book = Books(authors=request.json["authors"],isbn=request.json["isbn"],stock=request.json["stock"],title=request.json["title"])
+    db.session.add(book)
+    db.session.commit()
+    logging.basicConfig(level=logging.DEBUG)
+    print(request.host,"request")
+    return "Response.status"
+@app.route('/getbooks',methods=['GET'])
 def getbooks():
     data = Books.query.all()
     data2 = []
@@ -20,8 +29,4 @@ def getbooks():
             'stock' : element.stock
         }
         data2.append(elm)
-        
-    
-    #jsonify(json_list = data)
-    print(data2)
     return jsonify(thelist = data2)
