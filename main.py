@@ -14,7 +14,7 @@ def addbook():
     db.session.commit()
     logging.basicConfig(level=logging.DEBUG)
     print(request.host,"request")
-    return "Response.status"
+    return "Success"
 @app.route('/getbooks',methods=['GET'])
 def getbooks():
     data = Books.query.all()
