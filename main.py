@@ -9,7 +9,6 @@ def main():
     return "hello asdworld"
 @app.route('/addbook',methods=['POST'])
 def addbook():
-    #print(request.json,type(request.form))
     book = Books(authors=request.json["authors"],isbn=request.json["isbn"],stock=request.json["stock"],title=request.json["title"])
     db.session.add(book)
     db.session.commit()
