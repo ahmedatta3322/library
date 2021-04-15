@@ -1,25 +1,33 @@
-from flask import Flask , request , jsonify , json , Response 
+from flask import Flask , request , jsonify , json , Response ,make_response
 from flask_cors import cross_origin,CORS
-from models import Books ,app , db
 import logging
-CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
+from models import Books , app ,db
 @app.route('/')
 def main():
     return "hello asdworld"
 @app.route('/addbook',methods=['POST'])
 def addbook():
-    book = Books(authors=request.json["authors"],isbn=request.json["isbn"],stock=request.json["stock"],title=request.json["title"])
-    db.session.add(book)
-    db.session.commit()
-    logging.basicConfig(level=logging.DEBUG)
-    print(request.host,"request")
-    return "Success"
+    response = make_response()
+    try:  
+        book = Books(authors=request.json["authors"],isbn=request.json["isbn"],stock=request.json["stock"],title=request.json["title"])
+        try:
+            db.session.add(book)
+            db.session.commit()
+            response.data = "Request succeed and saved to the database"
+            response.status = "200"
+        except:
+            response.data = "Request failed" 
+            response.status = "401"
+        return response 
+    except Exception as e:
+        response.data = "Please provide valid" + str(e) 
+        response.status = "500"
+        return response
 @app.route('/getbooks',methods=['GET'])
 def getbooks():
-    data = Books.query.all()
-    data2 = []
-    for element in data:
+    books = Books.query.all()
+    bookslist = []
+    for element in books:
         elm = {
             'id':element.id,
             'title':element.title,
@@ -27,5 +35,5 @@ def getbooks():
             'isbn': element.isbn , 
             'stock' : element.stock
         }
-        data2.append(elm)
-    return jsonify(thelist = data2)
+        bookslist.append(elm)
+    return jsonify(thelist = bookslist)
